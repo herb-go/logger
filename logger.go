@@ -6,18 +6,30 @@ import (
 
 type Logger struct {
 	Writer
+	ID        string
 	Formatter Formatter
 	Prefixs   []Prefix
 }
 
+func (l *Logger) logBytes(p []byte) error {
+	var err error
+	var prefix = []byte(getPrefixs(l, DefaultPrefixSep, l.Prefixs...))
+	_, err = l.Writer.Write(prefix)
+	if err != nil {
+		return err
+	}
+	_, err = l.Writer.Write(p)
+	return err
+}
 func (l *Logger) Log(v ...interface{}) {
-	var data []byte
 	var err error
 	defer func() {
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 	}()
+	var data []byte
+
 	if l.Formatter == nil {
 		data, err = DefaultFormatter.Format(v...)
 	} else {
@@ -26,17 +38,37 @@ func (l *Logger) Log(v ...interface{}) {
 	if err != nil {
 		return
 	}
-	var output = []byte{}
-	for k := range l.Prefixs {
-		output = append(output, l.Prefixs[k].NewPrefix()...)
-	}
-	output = append(output, data...)
-	_, err = l.Writer.Write(output)
-
+	err = l.logBytes(data)
+	return
 }
 
+func (l *Logger) LogBytes(p []byte) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+	}()
+	err = l.logBytes(p)
+	return
+}
+
+func (l *Logger) LogString(s string) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+	}()
+	err = l.logBytes([]byte(s))
+	return
+}
 func (l *Logger) SetWriter(w Writer) *Logger {
 	l.Writer = w
+	return l
+}
+func (l *Logger) SetID(id string) *Logger {
+	l.ID = id
 	return l
 }
 func (l *Logger) SetFormatter(f Formatter) *Logger {
@@ -55,6 +87,7 @@ func (l *Logger) Clone() *Logger {
 	p := make([]Prefix, len(l.Prefixs))
 	copy(p, l.Prefixs)
 	return &Logger{
+		ID:        l.ID,
 		Writer:    l.Writer,
 		Formatter: l.Formatter,
 		Prefixs:   p,
@@ -70,8 +103,9 @@ func (l *Logger) SubLogger() *Logger {
 func NewLogger() *Logger {
 	return &Logger{}
 }
-func createLogger(w Writer, f Formatter, p ...Prefix) *Logger {
+func createLogger(w Writer, id string, f Formatter, p ...Prefix) *Logger {
 	return &Logger{
+		ID:        id,
 		Writer:    w,
 		Formatter: f,
 		Prefixs:   p,

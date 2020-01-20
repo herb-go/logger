@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
+	"strings"
 )
 
 type Formatter interface {
@@ -29,4 +30,14 @@ func (f *CsvFormatter) Format(v ...interface{}) ([]byte, error) {
 	return output, nil
 }
 
-var DefaultFormatter = &CsvFormatter{}
+type SeparatedFormatter string
+
+func (f SeparatedFormatter) Format(v ...interface{}) ([]byte, error) {
+	data := make([]string, len(v))
+	for i := range v {
+		data[i] = fmt.Sprint(v[i])
+	}
+	return []byte(strings.Join(data, string(f))), nil
+}
+
+var DefaultFormatter Formatter = SeparatedFormatter(" ")

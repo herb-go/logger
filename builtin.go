@@ -1,14 +1,5 @@
 package logger
 
-var PanicPrefix = FixedPrefix("panic:")
-var FatalPrefix = FixedPrefix("fatal:")
-var ErrorPrefix = FixedPrefix("error:")
-var PrintPrefix = FixedPrefix("print:")
-var WarningPrefix = FixedPrefix("warning:")
-var InfoPrefix = FixedPrefix("info:")
-var TracePrefix = FixedPrefix("trace:")
-var DebugPrefix = FixedPrefix("debug:")
-
 var PanicLogger *Logger
 var FatalLogger *Logger
 var ErrorLogger *Logger
@@ -19,26 +10,46 @@ var TraceLogger *Logger
 var DebugLogger *Logger
 
 func ResetBuiltinLoggers() {
-	PanicLogger = createLogger(Stderr, nil, DefaultTimePrefix, PanicPrefix)
-	FatalLogger = createLogger(Stderr, nil, DefaultTimePrefix, FatalPrefix)
-	ErrorLogger = createLogger(Stderr, nil, DefaultTimePrefix, ErrorPrefix)
-	PrintLogger = createLogger(Stdout, nil, DefaultTimePrefix, PrintPrefix)
-	WarningLogger = createLogger(Stdout, nil, DefaultTimePrefix, WarningPrefix)
-	InfoLogger = createLogger(Stdout, nil, DefaultTimePrefix, InfoPrefix)
-	TraceLogger = createLogger(Null, nil, DefaultTimePrefix, TracePrefix)
-	DebugLogger = createLogger(Null, nil, DefaultTimePrefix, DebugPrefix)
+	PanicLogger = createLogger(Stderr, "Panic", nil, DefaultTimePrefix, PrefixID)
+	FatalLogger = createLogger(Stderr, "Fatal", nil, DefaultTimePrefix, PrefixID)
+	ErrorLogger = createLogger(Stderr, "Error", nil, DefaultTimePrefix, PrefixID)
+	PrintLogger = createLogger(Stdout, "Print", nil, DefaultTimePrefix, PrefixID)
+	WarningLogger = createLogger(Stdout, "Warning", nil, DefaultTimePrefix, PrefixID)
+	InfoLogger = createLogger(Stdout, "Info", nil, DefaultTimePrefix, PrefixID)
+	TraceLogger = createLogger(Null, "Trace", nil, DefaultTimePrefix, PrefixID)
+	DebugLogger = createLogger(Null, "Debug", nil, DefaultTimePrefix, PrefixID)
 }
 
-var Panic = PanicLogger.Log
-var Fatal = FatalLogger.Log
-var Error = ErrorLogger.Log
-var Print = PrintLogger.Log
-var Warning = WarningLogger.Log
-var Info = InfoLogger.Log
-var Trace = TraceLogger.Log
-var Debug = DebugLogger.Log
+func Panic(v ...interface{}) {
+	PanicLogger.Log(v...)
+}
+func Fatal(v ...interface{}) {
+	FatalLogger.Log(v...)
+}
+func Error(v ...interface{}) {
+	ErrorLogger.Log(v...)
+}
+func Print(v ...interface{}) {
+	PrintLogger.Log(v...)
+}
+func Warning(v ...interface{}) {
+	WarningLogger.Log(v...)
+}
+func Info(v ...interface{}) {
+	InfoLogger.Log(v...)
+}
+func Trace(v ...interface{}) {
+	TraceLogger.Log(v...)
+}
+func Debug(v ...interface{}) {
+	DebugLogger.Log(v...)
+}
 
 func EnableDevelopmengLoggers() {
 	TraceLogger.Writer = Stdout
 	DebugLogger.Writer = Stdout
+}
+
+func init() {
+	ResetBuiltinLoggers()
 }
