@@ -2,6 +2,7 @@ package logger
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"sync"
 )
@@ -10,19 +11,6 @@ type Writer interface {
 	Open() error
 	Close() error
 	Write(p []byte) (n int, err error)
-}
-
-type NullWriter struct {
-}
-
-func (o *NullWriter) Open() error {
-	return nil
-}
-func (o *NullWriter) Close() error {
-	return nil
-}
-func (o *NullWriter) Write(p []byte) (n int, err error) {
-	return len(p), nil
 }
 
 type IOWriter struct {
@@ -44,7 +32,9 @@ var Stderr Writer = &IOWriter{
 	Writer: os.Stderr,
 }
 
-var Null Writer = &NullWriter{}
+var Null Writer = &IOWriter{
+	Writer: ioutil.Discard,
+}
 
 type FileWriter struct {
 	lock sync.RWMutex
