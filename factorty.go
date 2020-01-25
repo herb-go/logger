@@ -4,12 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"sync"
 )
 
 type Option interface {
 	ApplyTo(*Logger) error
+}
+
+type OptionFunc func(*Logger) error
+
+func (o OptionFunc) ApplyTo(l *Logger) error {
+	return o(l)
 }
 
 type Factory func(u *url.URL) (Option, error)
@@ -30,7 +37,11 @@ func InitLogger(l *Logger, option string) error {
 	if err != nil {
 		return err
 	}
-	return o.ApplyTo(l)
+	err = o.ApplyTo(l)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 var (
@@ -71,4 +82,49 @@ func Factories() []string {
 	}
 	sort.Strings(list)
 	return list
+}
+
+func RegisterBuiltinFactory() {
+	Register("", func(u *url.URL) (Option, error) {
+		return OptionFunc(func(l *Logger) error {
+			var err error
+			if u.Host != "" {
+				return fmt.Errorf("logger:builtin logger formaterror %s", u.String())
+			}
+			switch u.Path {
+			case "":
+			case "stdout":
+				err = l.ReplaceWriter(Stdout)
+			case "stderr":
+				err = l.ReplaceWriter(Stderr)
+			case "null":
+				err = l.ReplaceWriter(Null)
+			default:
+				return fmt.Errorf("logger:unkown builtin logger output %s", u.Host)
+			}
+			if err != nil {
+				return err
+			}
+			return nil
+		}), nil
+	})
+}
+
+func RegisterAbsoluteFileFactory() {
+	Register("file", func(u *url.URL) (Option, error) {
+
+		return OptionFunc(func(l *Logger) error {
+			var err error
+			err = l.ReplaceWriter(NewFileWriter(filepath.Join(u.Host, u.Path), 0660))
+			if err != nil {
+				return err
+			}
+			return nil
+		}), nil
+	})
+}
+
+func init() {
+	RegisterBuiltinFactory()
+	RegisterAbsoluteFileFactory()
 }

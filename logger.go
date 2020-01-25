@@ -4,6 +4,8 @@ import (
 	"log"
 )
 
+var newline = []byte{'\n'}
+
 type Logger struct {
 	Writer
 	ID        string
@@ -11,6 +13,16 @@ type Logger struct {
 	Prefixs   []Prefix
 }
 
+func (l *Logger) ReplaceWriter(w Writer) error {
+	if l.Writer != nil {
+		err := l.Writer.Close()
+		if err != nil {
+			return err
+		}
+	}
+	l.Writer = w
+	return l.Writer.Open()
+}
 func (l *Logger) logBytes(p []byte) error {
 	var err error
 	var prefix = []byte(getPrefixs(l, DefaultPrefixSep, l.Prefixs...))
@@ -19,6 +31,10 @@ func (l *Logger) logBytes(p []byte) error {
 		return err
 	}
 	_, err = l.Writer.Write(p)
+	if err != nil {
+		return err
+	}
+	_, err = l.Writer.Write(newline)
 	return err
 }
 func (l *Logger) Log(v ...interface{}) {
@@ -101,7 +117,10 @@ func (l *Logger) SubLogger() *Logger {
 }
 
 func NewLogger() *Logger {
-	return &Logger{}
+	return &Logger{
+		Writer:  Null,
+		Prefixs: []Prefix{},
+	}
 }
 func createLogger(w Writer, id string, f Formatter, p ...Prefix) *Logger {
 	return &Logger{
