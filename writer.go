@@ -10,6 +10,7 @@ import (
 type Writer interface {
 	Open() error
 	Close() error
+	Reopen() error
 	Write(p []byte) (n int, err error)
 }
 
@@ -21,6 +22,10 @@ func (o *IOWriter) Open() error {
 	return nil
 }
 func (o *IOWriter) Close() error {
+	return nil
+}
+
+func (o *IOWriter) Reopen() error {
 	return nil
 }
 
@@ -64,7 +69,21 @@ func (o *FileWriter) Write(p []byte) (n int, err error) {
 	defer o.lock.RUnlock()
 	return o.file.Write(p)
 }
-
+func (o *FileWriter) Reopen() error {
+	var err error
+	o.lock.Lock()
+	defer o.lock.Unlock()
+	err = o.file.Close()
+	if err != nil {
+		return err
+	}
+	file, err := os.OpenFile(o.Path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, o.Mode)
+	if err != nil {
+		return err
+	}
+	o.file = file
+	return nil
+}
 func NewFileWriter(path string, mode os.FileMode) *FileWriter {
 	return &FileWriter{
 		Path: path,

@@ -1,5 +1,9 @@
 package logger
 
+import (
+	"log"
+)
+
 var PanicLogger *Logger
 var FatalLogger *Logger
 var ErrorLogger *Logger
@@ -20,6 +24,19 @@ func ResetBuiltinLoggers() {
 	DebugLogger = createLogger(Null, "Debug", nil, DefaultTimePrefix, PrefixID)
 }
 
+func reopen(w ...Writer) {
+	var err error
+	for k := range w {
+		err = w[k].Reopen()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func ReopenBuiltinLoggers() {
+	reopen(PanicLogger, FatalLogger, ErrorLogger, PrintLogger, WarningLogger, InfoLogger, TraceLogger, DebugLogger)
+}
 func Panic(v ...interface{}) {
 	PanicLogger.Log(v...)
 }
