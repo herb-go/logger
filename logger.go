@@ -6,9 +6,8 @@ import (
 
 type Logger struct {
 	Writer
-	ID        string
-	Formatter Formatter
-	Prefixs   []Prefix
+	ID      string
+	Prefixs []Prefix
 }
 
 func (l *Logger) ReplaceWriter(w Writer) error {
@@ -21,17 +20,8 @@ func (l *Logger) ReplaceWriter(w Writer) error {
 	l.Writer = w
 	return l.Writer.Open()
 }
-func (l *Logger) Log(logdata Log) {
-	var output string
-	if l.Formatter == nil {
-		output = DefaultFormatter.Format(logdata)
-	} else {
-		output = l.Formatter.Format(logdata)
-	}
-	l.LogString(output)
-}
 
-func (l *Logger) LogString(s string) {
+func (l *Logger) Log(s string) {
 	var err error
 	defer func() {
 		if err != nil {
@@ -52,10 +42,7 @@ func (l *Logger) SetID(id string) *Logger {
 	l.ID = id
 	return l
 }
-func (l *Logger) SetFormatter(f Formatter) *Logger {
-	l.Formatter = f
-	return l
-}
+
 func (l *Logger) SetPrefixs(p ...Prefix) *Logger {
 	l.Prefixs = p
 	return l
@@ -68,10 +55,9 @@ func (l *Logger) Clone() *Logger {
 	p := make([]Prefix, len(l.Prefixs))
 	copy(p, l.Prefixs)
 	return &Logger{
-		ID:        l.ID,
-		Writer:    l.Writer,
-		Formatter: l.Formatter,
-		Prefixs:   p,
+		ID:      l.ID,
+		Writer:  l.Writer,
+		Prefixs: p,
 	}
 }
 
@@ -80,18 +66,22 @@ func (l *Logger) SubLogger() *Logger {
 	logger.Writer = l
 	return logger
 }
-
+func (l *Logger) ForamtLogger(f Formatter) *FormatLogger {
+	return &FormatLogger{
+		Logger:    l,
+		Formatter: f,
+	}
+}
 func NewLogger() *Logger {
 	return &Logger{
 		Writer:  Null,
 		Prefixs: []Prefix{},
 	}
 }
-func createLogger(w Writer, id string, f Formatter, p ...Prefix) *Logger {
+func createLogger(w Writer, id string, p ...Prefix) *Logger {
 	return &Logger{
-		ID:        id,
-		Writer:    w,
-		Formatter: f,
-		Prefixs:   p,
+		ID:      id,
+		Writer:  w,
+		Prefixs: p,
 	}
 }

@@ -14,14 +14,14 @@ var TraceLogger *Logger
 var DebugLogger *Logger
 
 func ResetBuiltinLoggers() {
-	PanicLogger = createLogger(Stderr, "Panic", nil, DefaultTimePrefix, PrefixID)
-	FatalLogger = createLogger(Stderr, "Fatal", nil, DefaultTimePrefix, PrefixID)
-	ErrorLogger = createLogger(Stderr, "Error", nil, DefaultTimePrefix, PrefixID)
-	WarningLogger = createLogger(Stdout, "Warning", nil, DefaultTimePrefix, PrefixID)
-	InfoLogger = createLogger(Stdout, "Info", nil, DefaultTimePrefix, PrefixID)
-	PrintLogger = createLogger(Stdout, "Print", nil)
-	TraceLogger = createLogger(Null, "Trace", nil, DefaultTimePrefix, PrefixID)
-	DebugLogger = createLogger(Null, "Debug", nil, DefaultTimePrefix, PrefixID)
+	PanicLogger = createLogger(Stderr, "Panic", DefaultTimePrefix, PrefixID)
+	FatalLogger = createLogger(Stderr, "Fatal", DefaultTimePrefix, PrefixID)
+	ErrorLogger = createLogger(Stderr, "Error", DefaultTimePrefix, PrefixID)
+	WarningLogger = createLogger(Stdout, "Warning", DefaultTimePrefix, PrefixID)
+	InfoLogger = createLogger(Stdout, "Info", DefaultTimePrefix, PrefixID)
+	PrintLogger = createLogger(Stdout, "Print")
+	TraceLogger = createLogger(Null, "Trace", DefaultTimePrefix, PrefixID)
+	DebugLogger = createLogger(Null, "Debug", DefaultTimePrefix, PrefixID)
 }
 
 func Reopen(w ...Writer) {
@@ -38,28 +38,28 @@ func ReopenBuiltinLoggers() {
 	Reopen(PanicLogger, FatalLogger, ErrorLogger, PrintLogger, WarningLogger, InfoLogger, TraceLogger, DebugLogger)
 }
 func Panic(s string) {
-	PanicLogger.LogString(s)
+	PanicLogger.Log(s)
 }
 func Fatal(s string) {
-	FatalLogger.LogString(s)
+	FatalLogger.Log(s)
 }
 func Error(s string) {
-	ErrorLogger.LogString(s)
+	ErrorLogger.Log(s)
 }
 func Warning(s string) {
-	WarningLogger.LogString(s)
+	WarningLogger.Log(s)
 }
 func Info(s string) {
-	InfoLogger.LogString(s)
+	InfoLogger.Log(s)
 }
 func Print(s string) {
-	PrintLogger.LogString(s)
+	PrintLogger.Log(s)
 }
 func Trace(s string) {
-	TraceLogger.LogString(s)
+	TraceLogger.Log(s)
 }
 func Debug(s string) {
-	DebugLogger.LogString(s)
+	DebugLogger.Log(s)
 }
 
 func EnableDevelopmengLoggers() {
