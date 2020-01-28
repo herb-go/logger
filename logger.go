@@ -4,8 +4,6 @@ import (
 	"log"
 )
 
-var newline = []byte{'\n'}
-
 type Logger struct {
 	Writer
 	ID        string
@@ -23,50 +21,14 @@ func (l *Logger) ReplaceWriter(w Writer) error {
 	l.Writer = w
 	return l.Writer.Open()
 }
-func (l *Logger) logBytes(p []byte) error {
-	var err error
-	var prefix = []byte(getPrefixs(l, DefaultPrefixSep, l.Prefixs...))
-	_, err = l.Writer.Write(prefix)
-	if err != nil {
-		return err
-	}
-	_, err = l.Writer.Write(p)
-	if err != nil {
-		return err
-	}
-	_, err = l.Writer.Write(newline)
-	return err
-}
-func (l *Logger) Log(v ...interface{}) {
-	var err error
-	defer func() {
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-	}()
-	var data []byte
-
+func (l *Logger) Log(logdata Log) {
+	var output string
 	if l.Formatter == nil {
-		data, err = DefaultFormatter.Format(v...)
+		output = DefaultFormatter.Format(logdata)
 	} else {
-		data, err = l.Formatter.Format(v...)
+		output = l.Formatter.Format(logdata)
 	}
-	if err != nil {
-		return
-	}
-	err = l.logBytes(data)
-	return
-}
-
-func (l *Logger) LogBytes(p []byte) {
-	var err error
-	defer func() {
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-	}()
-	err = l.logBytes(p)
-	return
+	l.LogString(output)
 }
 
 func (l *Logger) LogString(s string) {
@@ -76,9 +38,12 @@ func (l *Logger) LogString(s string) {
 			log.Fatalln(err.Error())
 		}
 	}()
-	err = l.logBytes([]byte(s))
+	output := getPrefixs(l, DefaultPrefixSep, l.Prefixs...)
+	output = output + s
+	err = l.Writer.WriteLine(output)
 	return
 }
+
 func (l *Logger) SetWriter(w Writer) *Logger {
 	l.Writer = w
 	return l

@@ -7,15 +7,27 @@ import (
 	"sync"
 )
 
+var newline = []byte{'\n'}
+
 type Writer interface {
 	Open() error
 	Close() error
 	Reopen() error
-	Write(p []byte) (n int, err error)
+	WriteLine(s string) error
 }
 
 type IOWriter struct {
-	io.Writer
+	Writer io.Writer
+}
+
+func (o *IOWriter) WriteLine(s string) error {
+	var err error
+	_, err = o.Writer.Write([]byte(s))
+	if err != nil {
+		return err
+	}
+	_, err = o.Writer.Write(newline)
+	return err
 }
 
 func (o *IOWriter) Open() error {
@@ -64,10 +76,17 @@ func (o *FileWriter) Close() error {
 	o.file = nil
 	return o.file.Close()
 }
-func (o *FileWriter) Write(p []byte) (n int, err error) {
+
+func (o *FileWriter) WriteLine(s string) error {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
-	return o.file.Write(p)
+	var err error
+	_, err = o.file.Write([]byte(s))
+	if err != nil {
+		return err
+	}
+	_, err = o.file.Write(newline)
+	return err
 }
 func (o *FileWriter) Reopen() error {
 	var err error

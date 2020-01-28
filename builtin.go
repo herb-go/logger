@@ -24,7 +24,7 @@ func ResetBuiltinLoggers() {
 	DebugLogger = createLogger(Null, "Debug", nil, DefaultTimePrefix, PrefixID)
 }
 
-func reopen(w ...Writer) {
+func Reopen(w ...Writer) {
 	var err error
 	for k := range w {
 		err = w[k].Reopen()
@@ -35,31 +35,31 @@ func reopen(w ...Writer) {
 }
 
 func ReopenBuiltinLoggers() {
-	reopen(PanicLogger, FatalLogger, ErrorLogger, PrintLogger, WarningLogger, InfoLogger, TraceLogger, DebugLogger)
+	Reopen(PanicLogger, FatalLogger, ErrorLogger, PrintLogger, WarningLogger, InfoLogger, TraceLogger, DebugLogger)
 }
-func Panic(v ...interface{}) {
-	PanicLogger.Log(v...)
+func Panic(s string) {
+	PanicLogger.LogString(s)
 }
-func Fatal(v ...interface{}) {
-	FatalLogger.Log(v...)
+func Fatal(s string) {
+	FatalLogger.LogString(s)
 }
-func Error(v ...interface{}) {
-	ErrorLogger.Log(v...)
+func Error(s string) {
+	ErrorLogger.LogString(s)
 }
-func Warning(v ...interface{}) {
-	WarningLogger.Log(v...)
+func Warning(s string) {
+	WarningLogger.LogString(s)
 }
-func Info(v ...interface{}) {
-	InfoLogger.Log(v...)
+func Info(s string) {
+	InfoLogger.LogString(s)
 }
-func Print(v ...interface{}) {
-	PrintLogger.Log(v...)
+func Print(s string) {
+	PrintLogger.LogString(s)
 }
-func Trace(v ...interface{}) {
-	TraceLogger.Log(v...)
+func Trace(s string) {
+	TraceLogger.LogString(s)
 }
-func Debug(v ...interface{}) {
-	DebugLogger.Log(v...)
+func Debug(s string) {
+	DebugLogger.LogString(s)
 }
 
 func EnableDevelopmengLoggers() {

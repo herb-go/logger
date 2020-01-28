@@ -1,43 +1,23 @@
 package logger
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
 	"strings"
 )
 
 type Formatter interface {
-	Format(v ...interface{}) ([]byte, error)
-}
-
-type CsvFormatter struct {
-}
-
-func (f *CsvFormatter) Format(v ...interface{}) ([]byte, error) {
-	data := make([]string, len(v))
-	for i := range v {
-		data[i] = fmt.Sprint(v[i])
-	}
-	buf := bytes.NewBuffer(nil)
-	w := csv.NewWriter(buf)
-	err := w.Write(data)
-	if err != nil {
-		return nil, err
-	}
-	w.Flush()
-	output := bytes.TrimRight(buf.Bytes(), "\n")
-	return output, nil
+	Format(Log) string
 }
 
 type SeparatedFormatter string
 
-func (f SeparatedFormatter) Format(v ...interface{}) ([]byte, error) {
-	data := make([]string, len(v))
+func (f SeparatedFormatter) Format(l Log) string {
+	v := l.DefaultLogFields()
+	var data = make([]string, len(v))
 	for i := range v {
 		data[i] = fmt.Sprint(v[i])
 	}
-	return []byte(strings.Join(data, string(f))), nil
+	return strings.Join(data, string(f))
 }
 
 var DefaultFormatter Formatter = SeparatedFormatter(" ")
