@@ -20,7 +20,7 @@ func (f SeparatedFormatter) Format(l Log) string {
 	return strings.Join(data, string(f))
 }
 
-var SpaceSeparatedFormatter = SeparatedFormatter(" ")
+var SpaceSeparatedFormatter = SeparatedFormatter(",")
 var DefaultFormatter Formatter = SpaceSeparatedFormatter
 
 type ReplacementFormater string
