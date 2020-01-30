@@ -19,9 +19,9 @@ func (o OptionFunc) ApplyTo(l *Logger) error {
 	return o(l)
 }
 
-type Factory func(u *url.URL) (Option, error)
+type Factory func(u *url.URL, loader func(v interface{}) error) (Option, error)
 
-func InitLogger(l *Logger, option string) error {
+func InitLogger(l *Logger, option string, loader func(v interface{}) error) error {
 	factorysMu.RLock()
 	u, err := url.Parse(option)
 	if err != nil {
@@ -33,7 +33,7 @@ func InitLogger(l *Logger, option string) error {
 	if !ok {
 		return fmt.Errorf("logger: unknown driver %q (forgotten import?)", name)
 	}
-	o, err := factoryi(u)
+	o, err := factoryi(u, loader)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func Factories() []string {
 }
 
 func RegisterBuiltinFactory() {
-	Register("", func(u *url.URL) (Option, error) {
+	Register("", func(u *url.URL, loader func(v interface{}) error) (Option, error) {
 		return OptionFunc(func(l *Logger) error {
 			var err error
 			if u.Host != "" {
@@ -111,7 +111,7 @@ func RegisterBuiltinFactory() {
 }
 
 func RegisterAbsoluteFileFactory() {
-	Register("file", func(u *url.URL) (Option, error) {
+	Register("file", func(u *url.URL, loader func(v interface{}) error) (Option, error) {
 
 		return OptionFunc(func(l *Logger) error {
 			var err error

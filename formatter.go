@@ -43,6 +43,10 @@ type FormatLogger struct {
 	Formatter Formatter
 }
 
+func (l *FormatLogger) SetFormatter(f Formatter) *FormatLogger {
+	l.Formatter = f
+	return l
+}
 func (l *FormatLogger) FormatAndLog(log Log) {
 	if l.Formatter != nil {
 		l.Logger.Log(l.Formatter.Format(log))
