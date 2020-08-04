@@ -66,7 +66,7 @@ func (l *Logger) SubLogger() *Logger {
 	logger.Writer = l
 	return logger
 }
-func (l *Logger) ForamtLogger() *FormatLogger {
+func (l *Logger) FormatLogger() *FormatLogger {
 	return &FormatLogger{
 		Logger:    l,
 		Formatter: nil,

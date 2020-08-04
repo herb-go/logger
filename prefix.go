@@ -24,7 +24,7 @@ func (p *TimePrefix) NewPrefix(*Logger) string {
 
 var DefaultTimePrefix = &TimePrefix{}
 
-var DefaultTimeLayout = "2006-01-02 03:04:05"
+var DefaultTimeLayout = "2006-01-02 15:04:05"
 
 type FixedPrefix string
 
