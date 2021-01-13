@@ -70,3 +70,27 @@ func EnableDevelopmengLoggers() {
 func init() {
 	ResetBuiltinLoggers()
 }
+
+//GetBuiltinLogger get builtin logger by name.
+//Return nil if logger not found.
+func GetBuiltinLogger(name string) *Logger {
+	switch name {
+	case "panic":
+		return PanicLogger
+	case "fatal":
+		return FatalLogger
+	case "error":
+		return ErrorLogger
+	case "warning":
+		return WarningLogger
+	case "info":
+		return InfoLogger
+	case "print":
+		return PrintLogger
+	case "trace":
+		return TraceLogger
+	case "debug":
+		return DebugLogger
+	}
+	return nil
+}
