@@ -22,11 +22,7 @@ type IOWriter struct {
 
 func (o *IOWriter) WriteLine(s string) error {
 	var err error
-	_, err = o.Writer.Write([]byte(s))
-	if err != nil {
-		return err
-	}
-	_, err = o.Writer.Write(newline)
+	_, err = o.Writer.Write(append([]byte(s), newline...))
 	return err
 }
 
@@ -81,11 +77,7 @@ func (o *FileWriter) WriteLine(s string) error {
 	o.lock.RLock()
 	defer o.lock.RUnlock()
 	var err error
-	_, err = o.file.Write([]byte(s))
-	if err != nil {
-		return err
-	}
-	_, err = o.file.Write(newline)
+	_, err = o.file.Write(append([]byte(s), newline...))
 	return err
 }
 func (o *FileWriter) Reopen() error {
